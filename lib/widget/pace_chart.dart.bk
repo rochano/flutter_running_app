@@ -1,0 +1,41 @@
+import 'package:flutter/material.dart';
+import 'package:charts_flutter/flutter.dart' as charts;
+import 'package:running_app/models/PaceList.dart';
+
+class PaceChart extends StatelessWidget {
+  final List<charts.Series> seriesList;
+  final bool animate;
+
+  PaceChart(this.seriesList, {this.animate});
+
+  /// Creates a [TimeSeriesChart] with sample data and no transition.
+  factory PaceChart.withSampleData() {
+    return new PaceChart(
+      _createSampleData(),
+      // Disable animations for image tests.
+      animate: false,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return new charts.PieChart(
+      seriesList,
+      animate: animate,
+      // ßdateTimeFactory: const charts.LocalDateTimeFactory(),
+    );
+  }
+
+  /// Create one series with sample hard coded data.
+  static List<charts.Series<PaceList, DateTime>> _createSampleData() {
+    return [
+      new charts.Series<PaceList, DateTime>(
+        id: 'Pace',
+        colorFn: (_, __) => charts.MaterialPalette.blue.shadeDefault,
+        domainFn: (PaceList pace, _) => pace.pace,
+        measureFn: (PaceList pace, _) => pace.distance,
+        data: paceList,
+      )
+    ];
+  }
+}
