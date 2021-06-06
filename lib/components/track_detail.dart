@@ -17,7 +17,7 @@ class TrackDetail extends StatelessWidget {
           centerTitle: true,
           elevation: 0,
           title: Text(
-            "TRACK DETAIL",
+            "Track Detail",
           ),
         ),
         body: TrackDetailContent(track: currentTrack));

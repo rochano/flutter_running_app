@@ -1,47 +1,41 @@
 import 'package:flutter/cupertino.dart';
 import 'package:running_app/constants.dart';
 
-class DistancePicker extends StatefulWidget {
-  final double initialDistance;
+class WeightPicker extends StatefulWidget {
+  final double initialWeight;
   final Function onChanged;
 
-  const DistancePicker({Key key, this.initialDistance, this.onChanged})
+  const WeightPicker({Key key, this.initialWeight, this.onChanged})
       : super(key: key);
   @override
-  _DistancePickerState createState() =>
-      _DistancePickerState(initialDistance, onChanged);
+  _WeightPickerState createState() =>
+      _WeightPickerState(initialWeight, onChanged);
 }
 
-class _DistancePickerState extends State<DistancePicker> {
-  final double initialDistance;
+class _WeightPickerState extends State<WeightPicker> {
+  final double initialWeight;
   final Function onChanged;
   int intDigit = 0;
-  int dec1Digit = 0;
-  int dec2Digit = 0;
+  int decDigit = 0;
 
   void setDistance() {
-    double distance = double.parse(intDigit.toString() +
-        "." +
-        dec1Digit.toString() +
-        dec2Digit.toString());
-    print(distance);
-    onChanged(distance);
+    double weight =
+        double.parse(intDigit.toString() + "." + decDigit.toString());
+    print(weight);
+    onChanged(weight);
   }
 
-  _DistancePickerState(this.initialDistance, this.onChanged);
+  _WeightPickerState(this.initialWeight, this.onChanged);
 
   @override
   void initState() {
     super.initState();
     setState(() {
-      intDigit = initialDistance.toInt();
-      if (initialDistance.toString().contains(".")) {
-        var splitValue = initialDistance.toString().split(".");
+      intDigit = initialWeight.toInt();
+      if (initialWeight.toString().contains(".")) {
+        var splitValue = initialWeight.toString().split(".");
         intDigit = int.parse(splitValue[0]);
-        dec1Digit = int.parse(splitValue[1][0]);
-        if (splitValue[1].length > 1) {
-          dec2Digit = int.parse(splitValue[1][1]);
-        }
+        decDigit = int.parse(splitValue[1]);
       }
     });
   }
@@ -75,7 +69,7 @@ class _DistancePickerState extends State<DistancePicker> {
           ),
           Center(
             child: Container(
-              width: 180,
+              width: 120,
               child: Row(
                 children: [
                   Expanded(
@@ -116,13 +110,13 @@ class _DistancePickerState extends State<DistancePicker> {
                     ),
                   ),
                   Expanded(
-                    flex: 2,
+                    flex: 3,
                     child: CupertinoPicker(
                       selectionOverlay: Container(),
                       itemExtent: 32.0,
                       onSelectedItemChanged: (int value) {
                         setState(() {
-                          dec1Digit = value;
+                          decDigit = value;
                           setDistance();
                         });
                       },
@@ -137,34 +131,7 @@ class _DistancePickerState extends State<DistancePicker> {
                         },
                       ),
                       scrollController:
-                          FixedExtentScrollController(initialItem: dec1Digit),
-                    ),
-                  ),
-                  Expanded(
-                    flex: 3,
-                    child: CupertinoPicker(
-                      selectionOverlay: Container(),
-                      itemExtent: 32.0,
-                      onSelectedItemChanged: (int value) {
-                        setState(() {
-                          dec2Digit = value;
-                          setDistance();
-                        });
-                      },
-                      children: List<Widget>.generate(
-                        10,
-                        (int index) {
-                          return Align(
-                            alignment: Alignment.center,
-                            child: Text(
-                              (index).toString(),
-                              style: kDefaultPickerTextStyle,
-                            ),
-                          );
-                        },
-                      ),
-                      scrollController:
-                          FixedExtentScrollController(initialItem: dec2Digit),
+                          FixedExtentScrollController(initialItem: decDigit),
                     ),
                   ),
                   Expanded(
@@ -172,7 +139,7 @@ class _DistancePickerState extends State<DistancePicker> {
                     child: Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
-                        "KM.",
+                        "KG.",
                         style: kDefaultPickerTextStyle,
                       ),
                     ),

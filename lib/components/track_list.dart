@@ -1,25 +1,17 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:running_app/constants.dart';
 import 'package:running_app/models/track.dart';
-import 'package:http/http.dart' as http;
+import 'package:running_app/providers/provider.dart';
 import 'package:running_app/screens/screen.dart';
 
-class TrackList extends StatelessWidget {
-  Future<List<Track>> getTracks() async {
-    var data = await http.get(baseUrl + '/getalltracks');
-    var jsonData = json.decode(data.body);
+class TrackList extends StatefulWidget {
+  @override
+  _TrackListState createState() => _TrackListState();
+}
 
-    List<Track> tracks = [];
-    for (var elm in jsonData) {
-      Track track = Track.fromJson(elm);
-      tracks.add(track);
-    }
-    return tracks;
-  }
-
+class _TrackListState extends State<TrackList> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -27,28 +19,32 @@ class TrackList extends StatelessWidget {
         centerTitle: true,
         elevation: 0,
         title: Text(
-          "TRACK",
+          "Track",
         ),
+        leading: Container(),
       ),
       body: Container(
           child: FutureBuilder(
-              future: getTracks(),
+              future: Provider.of<TrackProvider>(context, listen: false)
+                  .fetchAndSetTracks(),
               builder: (BuildContext context, AsyncSnapshot snapshot) {
-                if (snapshot.data == null) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
                   return Center(child: CircularProgressIndicator());
                 }
-                return ListView.builder(
-                    scrollDirection: Axis.vertical,
-                    itemCount: snapshot.data.length,
-                    itemBuilder: (context, index) => TrackContent(
-                        track: snapshot.data[index],
-                        press: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => TrackDetail(
-                                currentTrack: snapshot.data[index],
-                              ),
-                            ))));
+                return Consumer<TrackProvider>(
+                  builder: (context, trackData, child) => ListView.builder(
+                      scrollDirection: Axis.vertical,
+                      itemCount: trackData.tracks.length,
+                      itemBuilder: (context, index) => TrackContent(
+                          track: trackData.tracks[index],
+                          press: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => TrackDetail(
+                                  currentTrack: trackData.tracks[index],
+                                ),
+                              )))),
+                );
               })),
     );
   }
@@ -90,9 +86,10 @@ class TrackContent extends StatelessWidget {
                     text:
                         "${NumberFormat('0.00').format(track.distance)} KM.\n",
                     style: TextStyle(
-                        color: kTextColor,
-                        fontSize: 20,
-                        fontWeight: FontWeight.w600),
+                      color: kTextColor,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                   TextSpan(
                     text: "${track.getDateFormat()}",

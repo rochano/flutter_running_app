@@ -1,25 +1,12 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:running_app/constants.dart';
-import 'package:running_app/models/Challenge.dart';
-import 'package:http/http.dart' as http;
+import 'package:running_app/models/challenge.dart';
+import 'package:running_app/providers/provider.dart';
 import 'package:running_app/screens/screen.dart';
 
 class ChallengeList extends StatelessWidget {
-  Future<List<Challenge>> getChallenges() async {
-    var data = await http.get(baseUrl + '/getallchallenges');
-    var jsonData = json.decode(data.body);
-
-    List<Challenge> challenges = [];
-    for (var elm in jsonData) {
-      Challenge challenge = Challenge.fromJson(elm);
-      challenges.add(challenge);
-    }
-    return challenges;
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -27,8 +14,9 @@ class ChallengeList extends StatelessWidget {
           centerTitle: true,
           elevation: 0,
           title: Text(
-            "CHALLENGE",
+            "Challenge",
           ),
+          leading: Container(),
           actions: <Widget>[
             IconButton(
               icon: Icon(Icons.add_circle_outline),
@@ -41,17 +29,20 @@ class ChallengeList extends StatelessWidget {
         ),
         body: Container(
           child: FutureBuilder(
-            future: getChallenges(),
+            future: Provider.of<ChallengeProvider>(context, listen: false)
+                .fetchAndSetChallenges(),
             builder: (BuildContext context, AsyncSnapshot snapshot) {
-              if (snapshot.data == null) {
-                return Center(child: CircularProgressIndicator());
-              }
-              return ListView.builder(
-                  scrollDirection: Axis.vertical,
-                  itemCount: snapshot.data.length,
-                  itemBuilder: (context, index) => ChallengeContent(
-                        challenge: snapshot.data[index],
-                      ));
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(child: CircularProgressIndicator());
+                }
+              return Consumer<ChallengeProvider>(
+                builder: (context, challengeData, child) => ListView.builder(
+                    scrollDirection: Axis.vertical,
+                    itemCount: challengeData.challenges.length,
+                    itemBuilder: (context, index) => ChallengeContent(
+                          challenge: challengeData.challenges[index],
+                        )),
+              );
             },
           ),
         ));

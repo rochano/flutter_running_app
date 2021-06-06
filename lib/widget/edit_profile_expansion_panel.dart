@@ -1,24 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:running_app/constants.dart';
+import 'package:running_app/widget/height_picker.dart';
+import 'package:running_app/widget/weight_picker.dart';
 
 import 'date_picker.dart';
-import 'distance_picker.dart';
 
-class ChallengeExpansionPanelList extends StatefulWidget {
-  final List<ChallengeItem> children;
+class EditProfileExpansionPanelList extends StatefulWidget {
+  final List<EditProfileItem> children;
 
-  ChallengeExpansionPanelList({Key key, this.children}) : super(key: key);
+  EditProfileExpansionPanelList({Key key, this.children}) : super(key: key);
   @override
-  _ChallengeExpansionPanelListState createState() =>
-      _ChallengeExpansionPanelListState(children);
+  _EditProfileExpansionPanelListState createState() =>
+      _EditProfileExpansionPanelListState(children);
 }
 
-class _ChallengeExpansionPanelListState
-    extends State<ChallengeExpansionPanelList> {
-  final List<ChallengeItem> children;
-  ChallengeItem currentItem;
+class _EditProfileExpansionPanelListState
+    extends State<EditProfileExpansionPanelList> {
+  final List<EditProfileItem> children;
+  EditProfileItem currentItem;
 
-  _ChallengeExpansionPanelListState(this.children);
+  _EditProfileExpansionPanelListState(this.children);
 
   bool _isChildExpanded(int index, bool isExpanded) {
     return currentItem?.id == children[index].id && isExpanded;
@@ -39,8 +40,8 @@ class _ChallengeExpansionPanelListState
     List<Widget> bodyWidgets = [
       DatePicker(
         initialDateTime: children[0].value,
-        minimumYear: DateTime.now().year - 5,
-        maximumYear: DateTime.now().year + 5,
+        minimumYear: DateTime.now().year - 100,
+        maximumYear: DateTime.now().year,
         onDateTimeChanged: (DateTime newdate) {
           setState(() {
             children[0].value = newdate;
@@ -48,23 +49,21 @@ class _ChallengeExpansionPanelListState
           });
         },
       ),
-      DatePicker(
-        initialDateTime: children[1].value,
-        minimumYear: DateTime.now().year - 5,
-        maximumYear: DateTime.now().year + 5,
-        onDateTimeChanged: (DateTime newdate) {
+      WeightPicker(
+        initialWeight: children[1].value,
+        onChanged: (double weight) {
           setState(() {
-            children[1].value = newdate;
-            children[1].callback(newdate);
+            children[1].value = weight;
+            children[1].callback(weight);
           });
         },
       ),
-      DistancePicker(
-        initialDistance: children[2].value,
-        onChanged: (double distance) {
+      HeightPicker(
+        initialHeight: children[2].value,
+        onChanged: (double height) {
           setState(() {
-            children[2].value = distance;
-            children[2].callback(distance);
+            children[2].value = height;
+            children[2].callback(height);
           });
         },
       ),
@@ -81,11 +80,11 @@ class _ChallengeExpansionPanelListState
                 bottom: BorderSide(width: 0.8, color: kTextColor),
               ),
             ),
-            padding: EdgeInsets.only(bottom: 8),
-            margin: EdgeInsets.only(left: 10, right: 10, top: 15),
+            padding: EdgeInsets.only(top: 15, bottom: 8),
+            margin: EdgeInsets.only(left: 10, right: 10),
             child: Column(
               children: <Widget>[
-                ChallengeDetailContent(
+                EditProfileDetailContent(
                   item: children[index],
                   onTap: () {
                     setState(() {
@@ -121,7 +120,7 @@ class _ChallengeExpansionPanelListState
   }
 }
 
-class ChallengeItem {
+class EditProfileItem {
   final int id;
   final String title;
   Object value;
@@ -129,15 +128,20 @@ class ChallengeItem {
   bool isExpanded;
   Function callback;
 
-  ChallengeItem(
-      {this.id, this.title, this.value, this.display, this.isExpanded, this.callback});
+  EditProfileItem(
+      {this.id,
+      this.title,
+      this.value,
+      this.display,
+      this.isExpanded,
+      this.callback});
 }
 
-class ChallengeDetailContent extends StatelessWidget {
-  final ChallengeItem item;
+class EditProfileDetailContent extends StatelessWidget {
+  final EditProfileItem item;
   final Function() onTap;
 
-  const ChallengeDetailContent({Key key, this.item, this.onTap})
+  const EditProfileDetailContent({Key key, this.item, this.onTap})
       : super(key: key);
 
   @override

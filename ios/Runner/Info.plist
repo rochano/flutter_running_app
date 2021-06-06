@@ -50,6 +50,12 @@
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
 	<key>NSAllowsArbitraryLoads</key>
-    <true/>
+	<true/>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>We need to take a picture!</string>
+	<key>NSCameraUsageDescription</key>
+	<string>We need to take a picture!</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>We need to take a picture!</string>
 </dict>
 </plist>

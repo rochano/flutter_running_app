@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -7,13 +6,13 @@ import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:location/location.dart';
-import 'package:running_app/constants.dart';
+import 'package:provider/provider.dart';
 import 'package:running_app/models/pace_detail.dart';
 import 'package:running_app/models/track.dart';
+import 'package:running_app/providers/provider.dart';
 import 'dart:math' show cos, sqrt, asin;
 
 import 'package:running_app/screens/screen.dart';
-import 'package:http/http.dart' as http;
 import 'package:running_app/util/calories_burned_calculator.dart';
 import 'package:running_app/util/health_util.dart';
 import 'package:running_app/util/string_util.dart';
@@ -157,14 +156,6 @@ class _RunningMapState extends State<RunningMap> {
     setState(() {}); // re-render the page
   }
 
-  Future<Track> registerTrack(Track track) async {
-    var url = baseUrl + "/addtrack";
-    var body = jsonEncode(track.toJson());
-    await http.post(url,
-        headers: <String, String>{"Content-Type": "application/json"},
-        body: body);
-  }
-
   Future<void> handleFinish(BuildContext context) async {
     DateTime duration =
         convertMilliSecondsToDateTime(_stopwatch.elapsedMilliseconds);
@@ -190,7 +181,7 @@ class _RunningMapState extends State<RunningMap> {
         paceList: paces);
 
     // save to db
-    await registerTrack(track);
+    Provider.of<TrackProvider>(context, listen: false).addTrack(track);
 
     // display summary
     Navigator.push(
@@ -227,9 +218,9 @@ class _RunningMapState extends State<RunningMap> {
     if (_timer != null) {
       _timer.cancel();
     }
-    if (_controller != null) {
-      _controller.dispose();
-    }
+    // if (_controller != null) {
+    //   _controller.dispose();
+    // }
     if (_locationSubscription != null) {
       _locationSubscription.cancel();
     }
@@ -243,8 +234,9 @@ class _RunningMapState extends State<RunningMap> {
         centerTitle: true,
         elevation: 0,
         title: Text(
-          "RUN",
+          "Run",
         ),
+        leading: Container(),
       ),
       body: initLocation != null
           ? Column(
@@ -325,7 +317,7 @@ class _RunningMapState extends State<RunningMap> {
                     mapType: MapType.normal,
                     // myLocationEnabled: true,
                     // tiltGesturesEnabled: false,
-                    zoomControlsEnabled: false,
+                    // zoomControlsEnabled: false,
                     initialCameraPosition: initLocation,
                     markers: Set.of((marker != null) ? [marker] : []),
                     // circles: Set.of((circle != null) ? [circle] : []),
@@ -365,6 +357,12 @@ class _RunningMapState extends State<RunningMap> {
                               //color: Colors.white,
                               child: MaterialButton(
                                 onPressed: handleStartPause,
+                                // onPressed: () => Navigator.push(
+                                //   context,
+                                //   MaterialPageRoute(
+                                //     builder: (context) => RunningMap(),
+                                //   ),
+                                // ),
                                 child: Text('START'),
                                 color: Colors.greenAccent,
                                 minWidth: MediaQuery.of(context).size.width,
@@ -410,12 +408,8 @@ class _RunningMapState extends State<RunningMap> {
                 ),
               ],
             )
-          : Container(
-              child: Center(
-                child: Text("Loading..."),
-              ),
-              alignment: Alignment.center,
-              width: MediaQuery.of(context).size.width,
+          : Center(
+              child: CircularProgressIndicator(),
             ),
     );
   }

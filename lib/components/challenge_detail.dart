@@ -1,13 +1,12 @@
-import 'dart:convert';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:running_app/constants.dart';
 import 'package:running_app/models/challenge.dart';
+import 'package:running_app/providers/provider.dart';
 import 'package:running_app/util/string_util.dart';
 import 'package:running_app/widget/challenge_expansion_panel.dart';
-import 'package:http/http.dart' as http;
 
 class ChallengeDetail extends StatefulWidget {
   @override
@@ -18,6 +17,7 @@ class _ChallengeDetailState extends State<ChallengeDetail> {
   DateTime _selectedBeginDate = DateTime.now();
   DateTime _selectedEndDate = DateTime.now();
   double _selectedDistance = 0.00;
+  var _isLoading = false;
 
   void registerChallenge() async {
     // print(
@@ -28,22 +28,53 @@ class _ChallengeDetailState extends State<ChallengeDetail> {
       endDate: StringUtils.convertDateToString(_selectedEndDate),
       targetDistance: _selectedDistance,
     );
-
-    await http.post(baseUrl + '/addchallenge',
-        headers: <String, String>{"Content-Type": "application/json"},
-        body: jsonEncode(challenge.toJson()));
+    Provider.of<ChallengeProvider>(context, listen: false)
+        .addChallenge(challenge);
 
     // display list
     Navigator.of(context).pop();
   }
 
+  Widget buildDoneBtn(BuildContext context, Size deviceSize) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 20.0),
+      child: Container(
+        height: 45,
+        width: deviceSize.width,
+        //color: Colors.white,
+        child: MaterialButton(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(30.0)),
+          onPressed: registerChallenge,
+          child: Expanded(
+            child: _isLoading
+                ? CircularProgressIndicator()
+                : Text(
+                    "DONE",
+                    style: TextStyle(
+                      color: Colors.white,
+                      // letterSpacing: 1.5,
+                      fontSize: 14.0,
+                    ),
+                  ),
+          ),
+          color: kPrimaryColor,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final deviceSize = MediaQuery.of(context).size;
     List<ChallengeItem> children = <ChallengeItem>[
       ChallengeItem(
           id: 0,
           title: "Begin Date",
-          value: DateFormat.yMMMEd().format(_selectedBeginDate),
+          value: _selectedBeginDate,
+          display: (DateTime newdate) {
+            return DateFormat.yMMMEd().format(newdate);
+          },
           callback: (DateTime newdate) {
             setState(() {
               _selectedBeginDate = newdate;
@@ -52,7 +83,10 @@ class _ChallengeDetailState extends State<ChallengeDetail> {
       ChallengeItem(
           id: 1,
           title: "End Date",
-          value: DateFormat.yMMMEd().format(_selectedEndDate),
+          value: _selectedEndDate,
+          display: (DateTime newdate) {
+            return DateFormat.yMMMEd().format(newdate);
+          },
           callback: (DateTime newdate) {
             setState(() {
               _selectedEndDate = newdate;
@@ -61,7 +95,10 @@ class _ChallengeDetailState extends State<ChallengeDetail> {
       ChallengeItem(
           id: 2,
           title: "Distances",
-          value: "${NumberFormat('0.00').format(_selectedDistance)}  KM.",
+          value: _selectedDistance,
+          display: (double distance) {
+            return "${NumberFormat('0.00').format(distance)}  KM.";
+          },
           callback: (double distance) {
             setState(() {
               _selectedDistance = distance;
@@ -74,18 +111,36 @@ class _ChallengeDetailState extends State<ChallengeDetail> {
         centerTitle: true,
         elevation: 0,
         title: Text(
-          "CHALLENGE DETAIL",
+          "Challenge Detail",
         ),
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.done),
-            onPressed: registerChallenge,
-          ),
-        ],
+        // actions: <Widget>[
+        //   IconButton(
+        //     icon: Icon(Icons.done),
+        //     onPressed: registerChallenge,
+        //   ),
+        // ],
       ),
       body: SingleChildScrollView(
-        child: ChallengeExpansionPanelList(
-          children: children,
+        child: Center(
+          child: Container(
+            color: Colors.white,
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: Column(
+                children: [
+                  Container(
+                    child: ChallengeExpansionPanelList(
+                      children: children,
+                    ),
+                  ),
+                  Container(
+                    width: deviceSize.width * 0.85,
+                    child: buildDoneBtn(context, deviceSize),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ),
       ),
     );

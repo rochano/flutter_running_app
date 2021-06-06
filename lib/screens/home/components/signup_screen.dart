@@ -76,7 +76,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
       lastName: _authData['lastName'],
     );
 
-    final response = await http.post(baseUrl + '/adduser',
+    final url = Uri.parse(baseUrl + '/adduser');
+    final response = await http.post(url,
         headers: <String, String>{"Content-Type": "application/json"},
         body: jsonEncode(user.toJson()));
     final responseData = json.decode(response.body);

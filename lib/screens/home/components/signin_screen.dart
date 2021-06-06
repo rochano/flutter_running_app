@@ -1,13 +1,11 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:running_app/constants.dart';
-import 'package:running_app/models/user.dart';
+import 'package:running_app/providers/provider.dart';
 import 'package:running_app/screens/screen.dart';
-import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
 
 class SignInScreen extends StatefulWidget {
   @override
@@ -75,22 +73,20 @@ class _SignInScreenState extends State<SignInScreen> {
     );
   }
 
-  void loginUser() async {
-    User user = new User(
-      email: _authData['email'],
-      password: _authData['password'],
-    );
-
-    final response = await http.post(baseUrl + '/authenticate',
-        headers: <String, String>{"Content-Type": "application/json"},
-        body: jsonEncode(user.toJson()));
-    final responseData = json.decode(response.body);
-    if (response.statusCode == HttpStatus.internalServerError) {
-      throw HttpException(responseData['message']);
+  Future<void> loginUser() async {
+    await Provider.of<AuthProvider>(context, listen: false)
+        .authenticate(_authData['email'], _authData['password']);
+    if (Provider.of<AuthProvider>(context, listen: false).isAuth) {
+      Navigator.pop(context);
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => BottomNavScreen(
+            initialIndex: 1,
+          ),
+        ),
+      );
     }
-
-    final prefs = await SharedPreferences.getInstance();
-    prefs.setString('userData', response.body);
   }
 
   Future<void> _submit() async {
@@ -120,6 +116,7 @@ class _SignInScreenState extends State<SignInScreen> {
       }
       _showErrorDialog(errorMessage);
     } catch (error) {
+      // print(error);
       const errorMessage =
           'Could not authenticate you. Please try again later.';
       _showErrorDialog(errorMessage);

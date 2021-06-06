@@ -93,30 +93,30 @@ class HomeScreen extends StatelessWidget {
                 padding: const EdgeInsets.all(20.0),
                 child: Column(
                   children: [
-                    buildLoginBtn(
-                      context,
-                      deviceSize,
-                      'Sigin with Facebook',
-                      FaIcon(
-                        FontAwesomeIcons.facebookF,
-                        size: 17,
-                        color: Colors.blue,
-                      ),
-                      Colors.blue,
-                      BottomNavScreen(),
-                    ),
-                    buildLoginBtn(
-                      context,
-                      deviceSize,
-                      'Sigin with Google',
-                      FaIcon(
-                        FontAwesomeIcons.google,
-                        size: 15,
-                        color: Colors.red,
-                      ),
-                      Colors.red,
-                      BottomNavScreen(),
-                    ),
+                    // buildLoginBtn(
+                    //   context,
+                    //   deviceSize,
+                    //   'Sigin with Facebook',
+                    //   FaIcon(
+                    //     FontAwesomeIcons.facebookF,
+                    //     size: 17,
+                    //     color: Colors.blue,
+                    //   ),
+                    //   Colors.blue,
+                    //   BottomNavScreen(),
+                    // ),
+                    // buildLoginBtn(
+                    //   context,
+                    //   deviceSize,
+                    //   'Sigin with Google',
+                    //   FaIcon(
+                    //     FontAwesomeIcons.google,
+                    //     size: 15,
+                    //     color: Colors.red,
+                    //   ),
+                    //   Colors.red,
+                    //   BottomNavScreen(),
+                    // ),
                     buildLoginBtn(
                       context,
                       deviceSize,
